@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="An illustrated guide to writing custom word stylesheets for Authority Editor." name="description"/>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <title>Authority Editor - An illustrated guide to writing custom word stylesheets</title>
+  </head>
+  <body>
+    <h1>An illustrated guide to writing custom word stylesheets for Authority Editor</h1>
+    <h2>Why write a custom word stylesheet?</h2>
+    <p>One of the advantages of an XML format for retention and disposal authorities is that 'views' of authorities aren't limited to those provided by State Records NSW. An agency might use a custom stylesheet to generate authorities with their own corporate styling, or to extract selections from larger authorities targetted at particular business units, or to consolidate a number of different authorities into a single document, etc.</p>
+    <p>But unlike stylesheets that produce HTML (for previewing authorities) or XML (for editing authorities), which are both relatively simple to create, producing Word stylesheets is a quite involved process that can take a day or two to achieve. The purpose of this guide is to assist users of <em>Authority Editor</em> to create Word stylesheets faster by providing a step-by-step walk through of key stages of the process.</p>
+    <h2>By the end of this guide...</h2>
+    <p>This guide uses Queensland State Archives's template for retention and disposal authorities (<a href="http://www.archives.qld.gov.au/downloads/appendix_e.doc">available here</a>) as an example. Queensland State Archives's template was chosen because it is publicly available and because it differs in interesting ways from State Records NSW's templates (e.g. the inclusion of a 'status' column and a 'legacy records' section), demonstrating how the information within retention and disposal authorities can be manipulated to create different views.</p>
+    <p>By the end of this guide we will produce:</p>
+    <ul>
+      <li>this <a href="qld_example.doc">word document</a>,</li>
+      <li>from this <a href="qld_example.xml">XML source file</a>,</li>
+      <li>using these <a href="qld_example.zip">XSL stylesheets</a>.</li>
+    </ul>
+    <h2>Adding stylesheets to Authority Editor</h2>
+    <p><strong>Note:</strong> to use the Qld example stylesheets, you will need the latest version of <em>Authority Editor</em> (version 1.1, released 9 March 2011). To upgrade, install the upgrade patch (<a href="https://github.com/srnsw/ae/downloads.html">available here</a>).</p>
+    <p>Custom stylesheets can be added to <em>Authority Editor's</em> 'data\stylesheets' directory (with the default install path it should be something like: 'C:\Program Files\Authority Editor\lib\ruby\site_ruby\1.8\ae\data\stylesheets'). To get the Queensland Archives example working, unzip the stylesheets file (above), copy the 'word_authority_qld.xsl' file to the 'data\stylesheets' directory, and copy the stylesheets in the unzipped 'include' directory into the 'data\stylesheets\include' directory.</p>
+    <p><em>Authority Editor’s</em> ‘transform’ menu is built dynamically whenever the program is loaded from a manifest file (originally in the 'data\stylesheets' directory, from version 1.1 in the user directory: something like ‘C:\Documents and Settings\<em>INSERT_USER_NAME_HERE</em>\Application Data\AuthorityEditorSettings\xsl_manifest.xml’). After copying the stylesheets over, add a new entry to this manifest file.</p>
+    <p>Since our output is Word, we add a new ‘stylesheet’ element to 'word' section of the manifest file. Enter the following text:</p>
+    <pre>    &lt;stylesheet&gt;
+      &lt;text&gt;Qld authority&lt;/text&gt;
+      &lt;file&gt;word_authority_qld.xsl&lt;/file&gt;
+    &lt;/stylesheet&gt;
+    </pre>
+    <p>Like so:</p>
+    <img src="illustrations/edit_manifest.png" alt="Editing the xsl_manifest.xml file"/>
+    <p>After reloading <em>Authority Editor</em>, you should see 'QLD word authority' in your Transform -> Word menu.</p>
+    <h2>Getting started</h2>
+    <h3>Prior learning</h3>
+    <p>To make the most of this tutorial, you will need to learn some XSL basics and familiarise yourself with the WordML format. Two good resources for learning XSL are <a href="http://www.xfront.com/xsl.html">Roger Costello's tutorial</a> and <a href="http://www.jenitennison.com/xslt/">Jeni Tennison's XSLT pages</a>. State Records NSW uses Microsoft's WordML format for its published views of authorities. Other formats (e.g. XSL-FO to PDF, ODF, or OOXML) could be considered, too. State Records NSW uses WordML simply because our version of MS Office is 2003. To get started with WordML, read <a href="http://msdn.microsoft.com/en-us/library/aa212812(v=office.11).aspx">the guide</a>.</p>
+    <h3>Setting up an editing environment</h3>
+    <p>You will need a text editor to edit XSL files. Notepad suffices but is not ideal for this kind of work. If you haven't already got a good text editor, install either <a href="http://www.geany.org/">Geany</a> or <a href="http://notepad-plus-plus.org/">Notepad++</a>.</p>
+    <p>You will also need a convenient way to execute XSL transformations. <em>Authority Editor</em> includes a transform engine and could be used however it is probably a little heavy duty for this purpose (creating XSL stylesheets is an iterative process involving lots of small changes and frequently re-doing the transform). MS Windows comes with an in-built XSL processor which you can trigger using this Microsoft JScript file:</p>
+    <img src="illustrations/convert_js.png" alt="A Microsoft JScript file to execute XSL transformations"/>
+    <p>You can download this script <a href="https://gist.github.com/861769">here</a>. If necessary, adjust the InputXML and WordXSL variables to match the actual file names of your XML input file and XSL file. If you double-click on this script, your transformation should run, generating an output file labelled 'output.xml'. Right-click on 'output.xml' and select 'Open With -> Microsoft Office Word' to check the result.</p>
+    <p><strong>Note:</strong> Microsoft's in-built XSL processor does not support <a href="http://www.exslt.org/">EXSLT</a> functions which are required to produce the index within the Queensland sample authority. For most purposes, the script will work, but if you need EXSLT functionality do the transforms in <em>Authority Editor</em> instead.</p>
+    <p>In your working directory, you should have three files: the XML file you want to convert, the XSL file you want to do the conversion, and the 'convert.js' script to trigger the MS transform engine.</p>
+    <img src="illustrations/environment.png" alt="Editing environment"/>
+    <p>Most of State Records NSW's stylesheets are composite stylesheets (one base stylesheet that includes a number of other stylesheets). This means that shared functionality (e.g. all of the Word stylesheets need to turn State Records NSW's XML markup into WordML markup) only needs to be written once, making stylesheets smaller and easier to maintain. These shared stylesheets can be found in <em>Authority Editor's</em> 'data\stylesheets\include' directory. When you create custom stylesheets, you should consider whether it is possible to save yourself work by incorporating any of the functionality from stylesheets in that directory. In the case of the Queensland example stylesheet, we incorporate a number of stylesheets from the 'include' directory:</p>
+    <ul>
+      <li>disposal_common.xsl<br/><em>This stylesheet turns State Records NSW's disposal elements into appropriate text strings e.g. 'Retain minimum 7 years after last action, then destroy'.</em></li>
+      <li>disposal_word.xsl<br/><em>This stylesheet applies WordML markup to disposal strings.</em></li>
+      <li>index.xsl<br/><em>This stylesheet generates an index from term titles and 'LinkedTo' elements.</em></li>
+      <li>render_word.xsl<br/><em>This stylesheet turns State Records NSW's markup (Paragraph, Emphasis, Source, etc. elements) into WordML markup.</em></li>
+      <li>stocks.xsl<br/><em>This stylesheet contains shared variables (e.g. Director's name) and some shared functionality (e.g. turn 'DateRange' elements into a string).</em></li>
+      <li>utils.xsl<br/><em>This stylesheet contains miscellaneous (!) shared functionality (e.g. generate an address as a text string from a Term element).</em></li>
+    </ul>
+    <p>Copy all of these files over into an 'include' directory within your working directory so that they are available while drafting the new transform.</p>
+    <img src="illustrations/environment_include.png" alt="Include folder"/>
+    <h2>Creating a custom word stylesheet</h2>
+    <p>While it would be possible to build a WordML XSL stylesheet up from scratch, this would be a <strong>lot</strong> of work as WordML is a very verbose format (much more so than, for example, HTML). It is much easier to work backwards from a Word template that you are already happy with.</p>
+    <p>To do this, we simply open the Word .dot or .doc file we want to recreate (e.g. <a href="http://www.archives.qld.gov.au/downloads/appendix_e.doc">Queensland State Archives' template</a>). Then simply save this file as an XML document using the 'Save as' menu.</p>
+    <img src="illustrations/save_as_xml.png" alt="Save as XML"/>
+    <p>Now open that XML file in your text editor. You may find that the layout of this file is horrible. For example, when I open it in Geany it looks like this...</p>
+    <img src="illustrations/open_in_geany.png" alt="Horrible layout"/>
+    <p>We can improve this by 'pretty printing' the XML. Handily, <em>Authority Editor</em> can handle generic XML and includes a pretty printer. To improve the layout: <strong>1.</strong> open in <em>Authority Editor</em>, <strong>2.</strong> save the file, then <strong>3.</strong> re-open it in Geany (or your editor of choice).</p>
+    <img src="illustrations/pretty_print.png" alt="Pretty printing in Authority Editor"/>
+    <p>Ok, now we have a nice looking XML file that represents the kind of word document we want to produce.</p>
+    <p>The next step is to turn it into an XSL file.</p>
+    <p>To do this we:</p>
+    <ul>
+      <li>wrap all the content within an xsl:stylesheet element</li>
+      <li>add a new xsl:output element with the method 'xml' (because our output will be WordML XML)</li>
+      <li>change the mso-application element to an xsl:processing-instruction element (this provides a hint to open the XML in MS Word)</li>
+      <li>move the namespace declarations from the w:wordDocument element to the xsl:stylesheet element (check to see whether you need them all, some namespaces such as 'st1' can simply be deleted)</li>
+      <li>your xsl:stylesheet should also of course have namespaces for xsl itself, State Records NSW's schema (use 'rda'), and version="1.0".</li>
+    </ul>
+    <p>Your XML file should now look like:</p>
+    <img src="illustrations/xml_to_xsl.png" alt="XML to XSL transmogrification"/>
+    <p><em>In the example above I've used Geany's code wrapping function to hide much of the document, revealing the key parts of its structure (the guts of the document are within the w:body element).</em></p>
+    <p>Now simply change the file's .xml extension to .xsl and you are on your way!</p>
+    <h2>Rip it apart</h2>
+    <p>By this stage you should have a working XSL file. But all it does is just reproduce the template. The next step is to actually get it to reflect the content of your XML file.</p>
+    <p>But first, we will make that task simpler by ripping our big XSL file apart into a series of smaller stylesheets that will be easier to work with.</p>
+    <p>Geany's code wrapping makes it a lot easier to find your way around. Have a dig around by expanding and hiding different parts of the document.</p>
+    <p>You will find that most of the important stuff in the template (the table of contents, the disposal schedule, and the index) can all be found within the second wx:sect of the w:Body element.</p> 
+    <img src="illustrations/checking_the_xml.png" alt="Digging around in the XML"/>
+    <p>Scroll down a bit further and you will find the beginning of the disposal schedule.</p>
+    <p>This part of our XSL file:</p>
+    <img src="illustrations/xml_function.png" alt="A function in the XML"/>
+    <p>Corresponds to this part of the word template:</p>
+    <img src="illustrations/word_function.png" alt="Same function in the Word template"/>
+    <p>If we manipulate this XSL we can make it automatically reflect our XML authority. In order to make working with it easier, lets cut the wx:subsection containing the disposal condition out of our XSL and paste it into a new file. Like so:</p>
+    <img src="illustrations/copy_function_new_file.png" alt="Copying to a new file"/>
+    <p>In the Qld example, you will see that I have also pulled out several other parts of the main XSL file (the binary image data that goes in the header, all the 'frontmatter', the table of contents, and the index). These new files all go in the include directory and you should add corresponding xsl:include elements to your main stylesheet.</p>
+    <h2>Clean out the cruft</h2>
+    <p>You will find that much of the content of a WordML file is cruft that can be safely removed. Cleaning up is painstaking but is handy because it allows the relevant content in your XSL stylesheets to stand out. One change that I will typically make is to remove all the wsp: attributes. These attributes track changes aren't aren't necessary in a stylesheet. You can do a simple find and replace to delete all of these.</p>
+    <img src="illustrations/clean_wsp.png" alt="Cleaning out the cruft"/>
+    <p>This may take a while (you will typically find hundreds of them in a WordML file). If you are using Geany, click on that "Use regular expressions" button in the Find and Replace dialogue and try this search: " wsp:[^>]*" (you don't want the quote marks but that first space is important).</p>
+    <h2>Writing XSL</h2>
+    <p>Ok, well you are all set up now and ready to write some actual XSL. I leave this part to the reader! If you have trouble with it, I recommend looking at State Records NSW's XSL stylesheets where they handle similar problems to yours.</p>
+    <img src="illustrations/copying_srnsw.png" alt="Copying code isn't cheating, it is DRY"/>
+    <p><em>E.g. the 'render_word_authority.xsl' stylesheet in the 'include' directory demonstrates how State Records' disposal schedules are built.</em></p>
+    <h2>Qld example stylesheets</h2>
+    <p>The Queensland template differs in some interesting ways to State Records NSW's. Although <em>Authority Editor</em> can't perfectly handle all of these differences, it is flexible enough to represent most of Queensland's template.</p>
+    <p>Key points of difference:</p>
+    <ul>
+      <li>Queensland Disposal Authority Numbers (QDANs) can have Version qualifiers<br/><strong>Solution:</strong> This difference can't be neatly solved. In the example authority, we include the version number as a decimal point (e.g. FA 250.2). In the stylesheets we then separate this single field out into a QDAN and Version number. It would probably be more satisfactory to extend State Records NSW's schema here.</li>
+      <li>Queensland authorities have extended text to describe the scope of the disposal schedule<br/><strong>Solution:</strong> <em>Authority Editor</em> has a dedicated scope field but this is designed for the short functional headings used by State Records NSW. Because Queensland gives a fuller scope note, in the example authority we include a custom 'Context' element with 'scope' for its 'type' attribute. 'Context' elements are designed for including arbitrary contextual information such as this.</li>
+      <li>List of previously issued disposal authorities that are revoked<br/><strong>Solution:</strong> This list can be built from the list of superseded authorities within the Status element.</li>
+      <li>Revision history<br/><strong>Solution:</strong> This difference can't be neatly solved. In the example authority, we include earlier versions as superseded authorities (e.g. FA 250.1). The 'PartText' field describes the extent of revision. It would probably be more satisfactory to extend State Records NSW's schema here.</li>
+      <li>Queensland disposal schedules include a status (Permanent/Temporary) column<br/><strong>Solution:</strong> In the example stylesheets we identify the status by the disposal action (Permanent if 'Required as State archives' or 'Retain in agency', Temporary otherwise).</li>
+      <li>Queensland disposal classes can have titles<br/><strong>Solution:</strong> This is actually no problem at all because there is a 'ClassTitle' field. It just isn't used very often by State Records NSW so is in the 'additional' section within <em>Authority Editor</em>.</li>
+      <li>Queensland disposal schedules include a Legacy Records section<br/><strong>Solution:</strong> <em>Authority Editor</em> can have term hierarchies of any kind. To make a Legacy Records section, we simply create a Series term with Classes directly beneath it. We can attach the legacy public authority to this series by adding a Status event to it. We can't add a date range for the agency (unless it is included in the agency's name) but we can give a local date range to the series instead.</li>
+    </ul>
+    <h2>Help, I still have questions!</h2>
+    <p>If you decide to try creating your own custom stylesheet for <em>Authority Editor</em> please get in touch, I will be very happy to help. You might also post any questions to the mailing list: authorityeditor@googlegroups.com. Good luck!</p>
+ </body>
+</html>
